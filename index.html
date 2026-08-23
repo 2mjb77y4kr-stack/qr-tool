@@ -2648,6 +2648,13 @@ var qrcode = function() {
       downloadDataUrl(dataUrl, filename);
     }
 
+    function getShowPageUrl() {
+      if (window.location.protocol === 'https:' || window.location.protocol === 'http:') {
+        return window.location.origin + window.location.pathname.replace(/index\.html$/, '') + 'show.html';
+      }
+      return 'https://2mjb77y4kr-stack.github.io/qr-tool/show.html';
+    }
+
     function makeQR(text) {
       qrcode.stringToBytes = qrcode.stringToBytesFuncs['UTF-8'];
       var levels = ['H', 'Q', 'M', 'L'];
@@ -2770,7 +2777,7 @@ var qrcode = function() {
       }
 
       var qrContent = wechatMode.checked
-        ? 'https://2mj677y4kr-stack.github.io/qr-tool/show.html?text=' + encodeURIComponent(text)
+        ? getShowPageUrl() + '?text=' + encodeURIComponent(text)
         : text;
 
       var messages = [];
