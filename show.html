@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>扫码显示内容</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(160deg, #eef2ff 0%, #f4f6fb 50%, #e6f4ff 100%);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .card {
+    width: 100%;
+    max-width: 640px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: 0 16px 40px rgba(37, 99, 235, 0.12);
+    padding: 28px 24px;
+    text-align: center;
+    word-break: break-all;
+  }
+  .badge {
+    display: inline-block;
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--primary);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 18px;
+  }
+  #result {
+    font-size: 22px;
+    line-height: 1.6;
+    font-weight: 600;
+    margin: 0 0 24px;
+  }
+  #result.empty {
+    color: var(--muted);
+    font-weight: 400;
+  }
+  button {
+    border: none;
+    border-radius: 12px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 13px 26px;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  button:active { opacity: .85; }
+  #tip {
+    margin: 14px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="badge">扫码内容</div>
+    <p id="result" class="empty">未找到文本内容</p>
+    <button id="copyBtn" type="button">复制内容</button>
+    <p id="tip">长按上方文字也可以选择复制</p>
+  </main>
+
+  <script>
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var text = params.get('text');
+    var resultEl = document.getElementById('result');
+    var copyBtn = document.getElementById('copyBtn');
+    var tipEl = document.getElementById('tip');
+
+    if (text) {
+      resultEl.textContent = text;
+      resultEl.classList.remove('empty');
+    } else {
+      copyBtn.disabled = true;
+      copyBtn.style.opacity = '0.45';
+      tipEl.textContent = '请通过二维码链接打开此页面';
+    }
+
+    function fallbackCopy(value) {
+      var ta = document.createElement('textarea');
+      ta.value = value;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      return ok;
+    }
+
+    copyBtn.addEventListener('click', function () {
+      if (!text) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+          tipEl.textContent = '已复制到剪贴板';
+        }).catch(function () {
+          fallbackCopy(text);
+          tipEl.textContent = '已复制到剪贴板';
+        });
+      } else {
+        fallbackCopy(text);
+        tipEl.textContent = '已复制到剪贴板';
+      }
+    });
+  })();
+  </script>
+</body>
+</html>
